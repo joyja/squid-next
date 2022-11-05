@@ -1,0 +1,5 @@
+"""Read only queries"""
+type Query {
+  """Information about the Tentacle PLC environment as a string."""
+  info: String!
+}
