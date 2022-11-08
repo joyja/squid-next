@@ -1,6 +1,5 @@
 const fs = require('fs')
 const { exec } = require('child_process')
-const logger = require('../logger')
 
 const getUsers = async function () {
   const ignore = [
@@ -72,7 +71,6 @@ const createUser = async function (username, password) {
     })
   } else {
     const errorMessage = `OS User with username ${username} already exists.`
-    logger.error(errorMessage)
     throw new Error(errorMessage)
   }
 }
@@ -96,7 +94,6 @@ const deleteUser = async function (username) {
     })
   } else {
     const errorMessage = `OS User with username ${username} does not exist.`
-    logger.error(errorMessage)
     throw new Error(errorMessage)
   }
 }
@@ -131,7 +128,6 @@ const getAuthorizedKeys = async function (username) {
     })
   } else {
     const errorMessage = `OS User with username: ${username} does not exist.`
-    logger.error(errorMessage)
     throw new Error(errorMessage)
   }
 }
@@ -160,7 +156,6 @@ const addAuthorizedKey = async function (username, key) {
     })
   } else {
     const errorMessage = `User with username: ${username} does not exist.`
-    logger.error(errorMessage)
     throw new Error(errorMessage)
   }
 }
@@ -189,7 +184,6 @@ const deleteAuthorizedKey = async function (username, line) {
       })
     } else {
       const errorMessage = `User with username: ${username} does not exist.`
-      logger.error(errorMessage)
       throw new Error(errorMessage)
     }
   } else {
@@ -197,7 +191,6 @@ const deleteAuthorizedKey = async function (username, line) {
       authorizedKeys.length <= 0
         ? `There are no authorized keys to delete.`
         : `There are only ${authorizedKeys.length} authorized keys for user: ${username} and you requested to delete key number ${line}`
-    logger.error(errorMessage)
     throw new Error(errorMessage)
   }
 }

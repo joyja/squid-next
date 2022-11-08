@@ -1,5 +1,195 @@
+scalar Datetime
+enum Permission {
+  CONTAINER_ADMIN
+  USER_ADMIN
+  OS_USER_ADMIN
+  OS_NETWORK_ADMIN
+}
+
+"""An authorized ssh key. Used to allow users to access a container or the root operating system."""
+type AuthorizedKey {
+  """line number in the authorized keys file"""
+  line: Int!
+  key: String!
+}
+
+"""Credentials used to identify who is logging into the gateway."""
+type User {
+  id: ID!
+  username: String!
+}
+
+"""Credentials used to log into the operating system (via ssh, for example)."""
+type OSUser {
+  username: String!
+  sshKey: String!
+  authorizedKeys: [AuthorizedKey!]!
+}
+
+"""A device as defined within an LXD container."""
+type Device {
+  id: String!
+  name: String
+  type: String!
+}
+
+"""Configuration Data"""
+type Config {
+  securityNesting: Boolean
+  userUserData: String
+}
+
+"""Profile data."""
+type Profile {
+  name: String!
+  description: String!
+  config: Config!
+  devices: [Device!]!
+}
+
+"""Operation data."""
+type Operation {
+  id: String!
+  class: String!
+  created_at: Datetime!
+  updated_at: Datetime!
+  status: String!
+  status_code: Int!
+  may_cancel: Boolean!
+  err: String
+}
+
+"""Container Network Address."""
+type ContainerNetworkAddress {
+  family: String!
+  address: String!
+  netmask: String!
+  scope: String!
+}
+
+"""Container Network Info."""
+type ContainerNetwork {
+  name: String!
+  addresses: [ContainerNetworkAddress!]!
+  bytes_received: Int!
+  bytes_sent: Int!
+  packets_received: Int!
+  packets_sent: Int!
+  macAddress: String!
+  host_name: String
+  mtu: Int!
+  state: String!
+  type: String!
+}
+
+"""Container data."""
+type Container {
+  name: String!
+  network: [ContainerNetwork!]!
+  status: String!
+  status_code: Int!
+  architecture: String!
+  ephemeral: Boolean!
+  profiles: [Profile!]!
+  stateful: Boolean!
+  description: String!
+  created_at: Datetime!
+  last_used_at: Datetime!
+  location: String!
+  type: String!
+  cloudInitComplete: Boolean
+  application: String!
+}
+
+type NetworkInterfaceConfig {
+  name: String
+  dhcp4: Boolean
+  addresses: [String!]
+  gateway4: String
+}
+
+type NetworkInterface {
+  id: String
+  name: String
+  alias: String
+  mtu: String
+  state: String
+  macAddress: String
+  ipAddresses: [String!]!
+  gateway: String
+}
+
+"""The data returned after a successful login attempt."""
+type AuthPayload {
+  """Bearer token to be added to the Authorization header for future requests."""
+  token: String
+  """User that successfully logged in."""
+  user: User
+}
+
 """Read only queries"""
 type Query {
-  """Information about the Tentacle PLC environment as a string."""
+  """Returns some information about this application."""
   info: String!
+  """Gets user based on authentication header and returns relevant data"""
+  user: User
+  """Gets list of users"""
+  users: [User!]!
+  """Gets list of OS Users"""
+  osUsers: [OSUser!]!
+  """Returns a list of containers and their properties"""
+  containers: [Container!]!
+  """List of current operations"""
+  operations: [Operation!]!
+  """Returns a list of profiles and their properties"""
+  profiles: [Profile!]!
+  """List of network interfaces"""
+  networkInterfaces: [NetworkInterface!]!
+  """List of network interface configurations"""
+  networkInterfaceConfigs: [NetworkInterfaceConfig!]!
+  
+}
+
+"""Write queries"""
+type Mutation {
+  """If a valid username and password is provided, this will return an auth payload with a java web token to be used for future requests 
+  and information about the user that successfully logged in."""
+  login(username: String!, password: String!): AuthPayload
+  """Change username"""
+  changeUsername(newUsername: String!): User
+  """Allows the user to change their password"""
+  changePassword(newPassword: String!, newPasswordConfirm: String!): User
+  """Create an User"""
+  createUser(username: String!, password: String!, passwordConfirm: String!): User
+  """Delete an User"""
+  deleteUser(id: ID!): User
+  """Create an OS User"""
+  createOSUser(username: String!, password: String!, passwordConfirm: String!): OSUser
+  """Delete an OS User"""
+  deleteOSUser(username: String!): OSUser
+  """"Add an authorized SSH key to a user"""
+  addAuthorizedKey(username: String!, key: String!): AuthorizedKey
+  """"Delete an authorized SSH key from a user"""
+  deleteAuthorizedKey(username: String!, line: Int!): AuthorizedKey
+  """create a container"""
+  createContainer(containerName: String!, profile: String!): Container
+  """delete a container"""
+  deleteContainer(containerName: String!): Container
+  """start a container"""
+  startContainer(containerName: String!): Container
+  """stop a container"""
+  stopContainer(containerName: String!): Container
+  """restart a container"""
+  restartContainer(containerName: String!): Container
+  """set description of container"""
+  setDescription(containerName: String!, description: String!): Container
+  """get the cloud init output log for a container"""
+  getCloudInitOutputLog(containerName: String!): String!
+  """Set network interface configuration"""
+  setInterfaceConfig(
+    name: String!,
+    dhcp: Boolean!,
+    addresses: [String!]!
+    gateway: String  
+  ): NetworkInterface
 }
