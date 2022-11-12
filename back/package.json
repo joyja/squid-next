@@ -4,7 +4,7 @@
   "description": "Container Management System",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --ignore ./runtime src/index.js",
+    "dev": "NODE_ENV=development nodemon --ignore ./runtime src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,10 +23,15 @@
     "express": "^4.18.2",
     "express-graphql": "^0.12.0",
     "graphql": "^16.6.0",
+    "graphql-subscriptions": "^2.0.0",
+    "graphql-ws": "^5.11.2",
+    "is-cidr": "4",
+    "is-ip": "3",
     "jsonwebtoken": "^8.5.1",
     "node-fetch": "2",
     "nodemon": "^2.0.20",
     "sqlite3": "^5.1.2",
+    "subscriptions-transport-ws": "^0.11.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

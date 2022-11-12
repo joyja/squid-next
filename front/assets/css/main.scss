@@ -1,0 +1,157 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: sans-serif;
+  }
+  
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+  
+  $palette: (
+    'gray': (
+      50: '#f9fafb',
+      100: '#f3f4f6',
+      200: '#e5e7eb',
+      300: '#d1d5db',
+      400: '#9ca3af',
+      500: '#6b7280',
+      600: '#4b5563',
+      700: '#374151',
+      800: '#1f2937',
+      900: '#111827',
+    ),
+    'ocean': (
+      50: '#f8fafc',
+      100: '#f1f5f9',
+      200: '#e2e8f0',
+      300: '#cbd5e1',
+      400: '#94a3b8',
+      500: '#64748b',
+      600: '#475569',
+      700: '#334155',
+      800: '#1e293b',
+      900: '#0f172a',
+    ),
+    'orange': (
+      50: '#fff7ed',
+      100: '#ffedd5',
+      200: '#fed7aa',
+      300: '#fdba74',
+      400: '#fb923c',
+      500: '#f97316',
+      600: '#ea580c',
+      700: '#c2410c',
+      800: '#9a3412',
+      900: '#7c2d12',
+    ),
+    'emerald': (
+      100: '#ccfff5',
+      200: '#99ffeb',
+      300: '#66ffe0',
+      400: '#33ffd6',
+      500: '#00f0c1',
+      600: '#00d6ab',
+      700: '#00a886',
+      800: '#006652',
+      900: '#003329',
+    ),
+  );
+  
+  :root {
+    --break-sm: 640px;
+    --break-md: 768px;
+    --break-lg: 1024px;
+    --break-xl: 1280px;
+    --break-2xl: 1536px;
+    --spacing-unit: 0.325rem;
+    --white: white;
+    --black: black;
+    --transparent: transparent;
+    @each $color, $shades in $palette {
+      @each $shade, $value in $shades {
+        --#{$color}-#{$shade}: #{$value};
+      }
+    }
+  }
+  
+  $spacingMults: (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20);
+  
+  @each $mult in $spacingMults {
+    .m-#{$mult},
+    .mx-#{$mult},
+    .ml-#{$mult} {
+      margin-left: calc(#{$mult} * var(--spacing-unit));
+    }
+    .m-#{$mult},
+    .mx-#{$mult},
+    .mr-#{$mult} {
+      margin-right: calc(#{$mult} * var(--spacing-unit));
+    }
+    .m-#{$mult},
+    .my-#{$mult},
+    .mt-#{$mult} {
+      margin-top: calc(#{$mult} * var(--spacing-unit));
+    }
+    .m-#{$mult},
+    .my-#{$mult},
+    .mb-#{$mult} {
+      margin-bottom: calc(#{$mult} * var(--spacing-unit));
+    }
+  
+    .p-#{$mult},
+    .px-#{$mult},
+    .pl-#{$mult} {
+      padding-left: calc(#{$mult} * var(--spacing-unit));
+    }
+    .p-#{$mult},
+    .px-#{$mult},
+    .pr-#{$mult} {
+      padding-right: calc(#{$mult} * var(--spacing-unit));
+    }
+    .p-#{$mult},
+    .py-#{$mult},
+    .pt-#{$mult} {
+      padding-top: calc(#{$mult} * var(--spacing-unit));
+    }
+    .p-#{$mult},
+    .px-#{$mult},
+    .pb-#{$mult} {
+      padding-bottom: calc(#{$mult} * var(--spacing-unit));
+    }
+    .space-x-#{$mult} > :not([hidden]) ~ :not([hidden]) {
+      margin-right: calc(#{$mult} * var(--spacing-unit) * 0);
+      margin-left: calc(#{$mult} * var(--spacing-unit) * 1);
+    }
+  }
+  
+  $fontSizes: ('xs' 'sm' 'base' 'lg' 'xl' '2xl');
+  
+  .button--primary {
+    transition: background-color 0.2s ease-out;
+    color: white;
+    border: none;
+    background-color: var(--emerald-700);
+    border-radius: 0.2rem;
+    padding: calc(1 * var(--spacing-unit));
+    cursor: pointer;
+    text-align: center;
+    font-weight: 700;
+    font-size: x-small;
+  }
+  .button--primary:hover {
+    background-color: var(--emerald-800);
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }

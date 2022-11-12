@@ -2,19 +2,18 @@ const fetch = require('node-fetch')
 const { network, auth } = require('../../os')
 const { User } = require('../../auth')
 
-async function user(root, context, info) {
+async function user(args, context) {
   return User.getUserFromContext(context)
 }
 
 async function users(args, context) {
-  console.log(context)
   await User.getUserFromContext(context)
   return User.instances
 }
 
 // OS Queries
 
-async function osUsers(root, args, context, info) {
+async function osUsers(args, context) {
   await User.getUserFromContext(context)
   return auth.getUsers().then((result) => {
     return result.map((username) => {
@@ -27,27 +26,27 @@ async function osUsers(root, args, context, info) {
 
 //Container Queries
 
-const containers = async function (root, args, context, info) {
+const containers = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
   const result = await lxd.instances.list({ lxd })
   return result
 }
 
-const profiles = async function (root, args, context, info) {
+const profiles = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
   return lxd.profiles.list()
 }
 
-const operations = async function (root, args, context, info) {
+const operations = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
   const result = await lxd.operations.list({ lxd })
   return result
 }
 
-const networkInterfaces = async function (root, args, context, info) {
+const networkInterfaces = async function (args, context) {
   await User.getUserFromContext(context)
   const ifaces = await network.getInterfaces()
   const defaultRoutes = await network.getDefaultRoutes()
@@ -62,7 +61,7 @@ const networkInterfaces = async function (root, args, context, info) {
   })
 }
 
-const networkInterfaceConfigs = async function (root, args, context, info) {
+const networkInterfaceConfigs = async function (args, context) {
   await User.getUserFromContext(context)
   const config = network.getConfig()[0]
   const result = Object.keys(config.contents.network.ethernets).map((key) => {
@@ -76,7 +75,7 @@ const networkInterfaceConfigs = async function (root, args, context, info) {
 }
 
 module.exports = {
-  info: () => `IIOT application container manger.`,
+  info: () => `IIOT application container manager.`,
   user,
   users,
   osUsers,

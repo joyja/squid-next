@@ -19,7 +19,10 @@ class Profiles {
     ]
   }
   async init() {
-    const existingProfiles = await this.lxd.get('/1.0/profiles')
+    const existingProfiles = await this.lxd.get('/1.0/profiles').then((result) => {
+      // if the api returns a falsy result, just set existing profiles to empty list
+      return result ? result : []
+    })
     for (const profileName of this.defaultNames) {
       const filePath = path.resolve(`./src/profiles/${profileName}.yaml`)
       const fileContents = fs.readFileSync(filePath, 'utf-8')
@@ -32,10 +35,16 @@ class Profiles {
     }
   }
   async get(name) {
-    return this.lxd.get(`/1.0/profiles/${name}`)
+    return this.lxd.get(`/1.0/profiles/${name}`).then((result) => {
+      // if the api returns a falsy result, just set existing profiles to empty list
+      return result ? result : []
+    })
   }
   async list() {
-    const endpoints = await this.lxd.get('/1.0/profiles')
+    const endpoints = await this.lxd.get('/1.0/profiles').then((result) => {
+      // if the api returns a falsy result, just set existing profiles to empty list
+      return result ? result : []
+    })
     return Promise.all(
       endpoints.map((endpoint) => {
         return this.lxd.get(endpoint)
@@ -98,7 +107,9 @@ class Instances {
     })
   }
   async list() {
-    const endpoints = await this.lxd.get('/1.0/instances')
+    const endpoints = await this.lxd.get('/1.0/instances').then((result) => {
+      return result ? result : []
+    })
     return Promise.all(
       endpoints.map((endpoint) => {
         return this.lxd.get(endpoint)

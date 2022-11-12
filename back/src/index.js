@@ -1,13 +1,18 @@
 const express = require('express')
 const { graphqlHTTP } = require('express-graphql')
-const { buildSchema } = require('graphql')
+const { buildSchema, execute, subscribe } = require('graphql')
 const cors = require('cors')
 const fs = require('fs')
 const path = require('path')
 const resolvers = require('./resolvers')
 const sqlite3 = require('sqlite3').verbose()
 const { User } = require('./auth')
+const LXD = require('./lxd')
+const { PubSub } = require('graphql-subscriptions')
+const ws = require('ws')
+const { useServer } = require('graphql-ws/lib/use/ws');
 
+const pubsub = new PubSub()
 const desiredUserVersion = 1
 
 const dbFilename = 'squid'
@@ -39,13 +44,17 @@ if (dbFilename === `:memory`) {
 const app = express()
 app.use(cors())
 
+//Initialize default profiles in LXD
+let lxd 
+
 const schema = buildSchema(
     fs.readFileSync(path.resolve(process.cwd(), 'src/schema.graphql')).toString()
 )
 
 const createContext = (req) => ({
     req,
-    db
+    db,
+    lxd
 })
 
 app.use(
@@ -53,25 +62,65 @@ app.use(
         schema,
         rootValue: resolvers,
         context: createContext(request),
-        graphiql: true
+        graphiql: {
+          headerEditorEnabled: true,
+        }
     }))
 )
 
-app.listen(4000, async () => {
+const server = app.listen(4000, async () => {
     try {
-        console.log('server started on port 4000.')
-        if (
-          dbFilename !== ':memory:' &&
-          fileExisted &&
-          userVersion !== desiredUserVersion
-        ) {
-          fs.copyFileSync(
-            `${dir}/${dbFilename}.db`,
-            `${dir}/${dbFilename}-backup-${new Date().toISOString()}.db`
-          )
-        }
-        await User.initialize(db)
-        await db.get(`PRAGMA user_version = ${desiredUserVersion}`)
+      lxd = new LXD(pubsub)
+      await lxd.init()
+      //populate cloudInitComplete object, to be used for creation status
+      const containers = await lxd.instances.list()
+      const cloudInitComplete = {}
+      containers.forEach((container) => {
+        cloudInitComplete[container.name] = true
+      })
+      const path = '/subscriptions'
+      const wsServer = new ws.Server({
+          server,
+          path
+      });
+
+      useServer(
+          {
+              schema,
+              execute,
+              subscribe,
+              onConnect: (ctx) => {
+                  console.log('Connect');
+              },
+              onSubscribe: (ctx, msg) => {
+                  console.log('Subscribe');
+              },
+              onNext: (ctx, msg, args, result) => {
+                  console.debug('Next');
+              },
+              onError: (ctx, msg, errors) => {
+                  console.error('Error');
+              },
+              onComplete: (ctx, msg) => {
+                  console.log('Complete');
+              },
+          },
+          wsServer
+      );
+      console.log('server started on port 4000.')
+      if (
+        dbFilename !== ':memory:' &&
+        fileExisted &&
+        userVersion !== desiredUserVersion
+      ) {
+        fs.copyFileSync(
+          `${dir}/${dbFilename}.db`,
+          `${dir}/${dbFilename}-backup-${new Date().toISOString()}.db`
+        )
+      }
+      await User.initialize(db)
+      await db.get(`PRAGMA user_version = ${desiredUserVersion}`)
+        
     } catch (error) {
         console.log(error)
     }

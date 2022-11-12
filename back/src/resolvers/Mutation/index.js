@@ -2,19 +2,19 @@ const fetch = require('node-fetch')
 const { network, auth } = require('../../os')
 const { User } = require('../../auth')
 
-async function login(root, args, context, info) {
+async function login(args, context) {
   return User.login(args.username, args.password)
 }
 
-async function changeUsername(root, args, context, info) {
+async function changeUsername(args, context) {
   return User.changeUsername(context, args.newUsername)
 }
 
-async function changePassword(root, args, context, info) {
+async function changePassword(args, context) {
   return User.changePassword(context, args.newPassword, args.newPasswordConfirm)
 }
 
-async function createUser(root, args, context, info) {
+async function createUser(args, context) {
   User.getUserFromContext(context)
   if (args.password === args.passwordConfirm) {
     return User.create(args.username, args.password)
@@ -24,7 +24,7 @@ async function createUser(root, args, context, info) {
   }
 }
 
-async function deleteUser(root, args, context, info) {
+async function deleteUser(args, context) {
   const user = User.getUserFromContext(context)
   const deletedUser = User.findById(args.id)
   if (deletedUser) {
@@ -38,7 +38,7 @@ async function deleteUser(root, args, context, info) {
 
 // OS Mutations
 
-async function createOSUser(root, args, context, info) {
+async function createOSUser(args, context) {
   User.getUserFromContext(context)
   if (args.password === args.passwordConfirm) {
     return auth.createUser(args.username, args.password)
@@ -48,21 +48,21 @@ async function createOSUser(root, args, context, info) {
   }
 }
 
-async function deleteOSUser(root, args, context, info) {
+async function deleteOSUser(args, context) {
   User.getUserFromContext(context)
   return auth.deleteUser(args.username)
 }
 
-async function addAuthorizedKey(root, args, context, info) {
+async function addAuthorizedKey(args, context) {
   return auth.addAuthorizedKey(args.username, args.key)
 }
 
-async function deleteAuthorizedKey(root, args, context, info) {
+async function deleteAuthorizedKey(args, context) {
   return auth.deleteAuthorizedKey(args.username, args.line)
 }
 
 // Container Mutations
-const createContainer = async function (root, args, context, info) {
+const createContainer = async function (args, context) {
   const { lxd, cloudInitComplete } = context
   await User.getUserFromContext(context)
   let operation = await lxd.instances.create({
@@ -77,7 +77,7 @@ const createContainer = async function (root, args, context, info) {
   return container
 }
 
-const deleteContainer = async function (root, args, context, info) {
+const deleteContainer = async function (args, context) {
   const { lxd, cloudInitComplete } = context
   await User.getUserFromContext(context)
   const container = await lxd.instances.get(args.containerName)
@@ -89,7 +89,7 @@ const deleteContainer = async function (root, args, context, info) {
   return container
 }
 
-const startContainer = async function (root, args, context, info) {
+const startContainer = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
   operation = await lxd.instances.start(args.containerName)
@@ -97,7 +97,7 @@ const startContainer = async function (root, args, context, info) {
   return lxd.instances.get(args.containerName)
 }
 
-const stopContainer = async function (root, args, context, info) {
+const stopContainer = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
   operation = await lxd.instances.stop(args.containerName)
@@ -105,7 +105,7 @@ const stopContainer = async function (root, args, context, info) {
   return lxd.instances.get(args.containerName)
 }
 
-const restartContainer = async function (root, args, context, info) {
+const restartContainer = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
   operation = await lxd.instances.restart(args.containerName)
@@ -113,7 +113,7 @@ const restartContainer = async function (root, args, context, info) {
   return lxd.instances.get(args.containerName)
 }
 
-const setDescription = async function (root, args, context, info) {
+const setDescription = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
   await lxd.patch(
@@ -125,13 +125,13 @@ const setDescription = async function (root, args, context, info) {
   return lxd.instances.get(args.containerName)
 }
 
-// const getCloudInitOutputLog = async function (root, args, context, info) {
+// const getCloudInitOutputLog = async function (args, context) {
 //   const { lxd } = attachConnectorsToContext
 //   await User.getUserFromContext(context)
 //   return lxd.instances.getCloudInitOutputLog(args.containerName)
 // }
 
-const setInterfaceConfig = async function (root, args, context, info) {
+const setInterfaceConfig = async function (args, context) {
   await User.getUserFromContext(context)
   const config = {
     name: args.name,

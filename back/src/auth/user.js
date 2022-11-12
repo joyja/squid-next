@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { Model } = require('../database')
 const { v1: uuidv1 } = require('uuid')
+const { isCompositeType } = require('graphql')
 
 const APP_SECRET =
   process.env.NODE_ENV === 'development' ? 'development_secret' : uuidv1()
@@ -55,10 +56,11 @@ class User extends Model {
         }
       }
     } else {
-      throw new AuthenticationError(errorMessage)
+      throw new Error(errorMessage)
     }
   }
   static async getUserFromContext(context) {
+    console.log(context.req.headers)
     const secret = APP_SECRET
     const errorMessage = `You are not authorized.`
     const authorization = context.req
