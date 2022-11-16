@@ -8,9 +8,10 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "nuxt": "3.0.0-rc.12"
+    "nuxt": "3.0.0-rc.13"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.4.3",
     "sass": "^1.56.1"
   }
 }

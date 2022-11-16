@@ -28,9 +28,9 @@ class Profiles {
       const fileContents = fs.readFileSync(filePath, 'utf-8')
       const config = yaml.load(fileContents)
       if (existingProfiles.some((profile) => profile.includes(profileName))) {
-        return this.update(config)
+        this.update(config)
       } else {
-        return this.create(config)
+        this.create(config)
       }
     }
   }
@@ -184,7 +184,9 @@ class LXD {
       agent: this.agent,
       body,
     })
-      .then((result) => result.json())
+      .then((result) => {
+        return result.json()
+      })
       .then((data) => data.metadata)
   }
   async get(endpoint) {

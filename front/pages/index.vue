@@ -1,20 +1,17 @@
 <script setup>
-const { data: info , pending, error, refresh } = await useAsyncData(
-  'info',
-  async () => {
-    const { data } = await $fetch('http://10.251.214.196:4000/', {
-      method: 'POST',
-      body: {
-        query: `query info { info }`
-      }
-    })
-    return data
-  })
+import { useSquidStore } from '~/store/squid'
+definePageMeta({
+  middleware: 'auth'
+})
+const { info, profiles } = useSquidStore()
 </script>
 
 <template>
   <div>
     {{ info }}
+    <ul>
+      <li v-for="profile in profiles" :key="profile">{{ profile.name }}</li>
+    </ul>
   </div>
 </template>
 
