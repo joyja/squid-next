@@ -68,6 +68,11 @@ const createContainer = async function (args, context) {
   let operation = await lxd.instances.create({
     name: args.containerName,
     profile: args.profile,
+  }).then((result) => {
+    console.log(result)
+    return result
+  }).catch((error) => {
+    console.log(error)
   })
   await lxd.operations.wait(operation.id)
   operation = await lxd.instances.start(args.containerName)

@@ -42,8 +42,7 @@ const profiles = async function (args, context) {
 const operations = async function (args, context) {
   const { lxd } = context
   await User.getUserFromContext(context)
-  const result = await lxd.operations.list({ lxd })
-  return result
+  return await lxd.operations.list()
 }
 
 const networkInterfaces = async function (args, context) {

@@ -16,6 +16,7 @@ class Profiles {
       'grafana',
       'codesys',
       'mosquitto',
+      'macvlan',
     ]
   }
   async init() {
@@ -67,6 +68,20 @@ class Operations {
   }
   async wait(id) {
     return this.lxd.get(`/1.0/operations/${id}/wait`)
+  }
+  async list() {
+    const result = await this.lxd.get(`/1.0/operations`)
+    if (result.running){
+      return await Promise.all(result.running.map(async (endpoint) => {
+        const operation = await this.lxd.get(endpoint)
+        return {
+          ...operation,
+          metadata: JSON.stringify(operation.metadata)
+        }
+      }))
+    } else {
+      return []
+    }
   }
 }
 
@@ -130,7 +145,7 @@ class Instances {
         type: 'image',
         protocol: 'simplestreams',
         server: 'https://cloud-images.ubuntu.com/releases',
-        alias: 'focal',
+        alias: 'jammy',
       },
     })
     return this.lxd.post('/1.0/instances', body)

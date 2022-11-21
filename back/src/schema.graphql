@@ -56,6 +56,7 @@ type Operation {
   status: String!
   status_code: Int!
   may_cancel: Boolean!
+  metadata: String
   err: String
 }
 

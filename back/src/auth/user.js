@@ -60,7 +60,6 @@ class User extends Model {
     }
   }
   static async getUserFromContext(context) {
-    console.log(context.req.headers)
     const secret = APP_SECRET
     const errorMessage = `You are not authorized.`
     const authorization = context.req

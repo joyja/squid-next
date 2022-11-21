@@ -1,77 +1,143 @@
 import { defineStore } from 'pinia'
+import nuxtServerInit from '~~/plugins/nuxtServerInit'
 
 export const useSquidStore = defineStore({
   id: 'squid',
   state: () => {
     return {
-      auth: {
-        username: null,
-        token: null
-      },
+      interval: null,
       info: 'nothing',
-      profiles: []
+      profiles: [],
+      containers: [],
+      operations: []
     }
   },
   actions: {
-    async nuxtServerInit() {
-      if (process.client) {
-        this.username = localStorage.getItem('username')
-        this.token = localStorage.getItem('token')
-      }
-      const route = useRoute()
-     
-      if (!this.username || !this.password) {
-        if (route.path !== '/login') {
-          navigateTo({ path: '/login' })
-        }
-      } else {
-        let url
-        if (process.client) {
-          url = window.location.hostname
-        } else {
-          url = 'localhost'
-        }
-        const { data : { info, profiles } } = await $fetch(`http://${url}:4000/`, {
-          method: 'POST',
-          headers: {
-            authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY2ODQwNTk3Nn0.y1RPzrSfut5Jy7bB3GGAuAsNTqMLcU-G_yuV0aEkpiQ"
-          },
-          body: {
-            query: `query info { 
-              info 
-              profiles 
-                { 
-                  name 
-                }
-              }`
-          }
-        })
-        this.info = info
-        this.profiles = profiles
-      }
+    setUsername(username) {
+      const cookie = useCookie('username')
+      cookie.value = username
     },
-    async login({ usernam, password }) {
+    setToken(token) {
+      const cookie = useCookie('token')
+      cookie.value = token 
+    },
+    fetch(query, noAuth = false) {
       let url
       if (process.client) {
-        url = window.location.hostname 
+        url = window.location.hostname
       } else {
         url = 'localhost'
       }
-      const { data : { user: { username }, token } } = await $fetch(`http://${url}:4000/`, {
+      return $fetch(`http://${url}:4000/`, {
         method: 'POST',
-        body: {
-          query: `mutation login { 
+        headers: {
+          authorization: `Bearer ${this.token}`
+        },
+        body: { query }
+      })
+    },
+    async getProfiles() {
+      const { data : { info, profiles } } = await this.fetch(`query info { 
+        info 
+        profiles 
+          { 
+            name 
+          }
+      }`)
+      this.info = info
+      this.profiles = profiles
+    },
+    async getContainers() {
+      const { data : { containers } } = await this.fetch(`query containers {
+        containers {
+          name
+          status
+          network {
+            name
+            addresses {
+              family
+              address
+              netmask
+              scope
+            }
+            bytes_received
+            bytes_sent
+            packets_received
+            packets_sent
+            macAddress
+            host_name
+            mtu
+            state
+            type
+          }
+          profiles {
+            name
+          }
+          status_code
+          architecture
+          ephemeral
+          stateful
+          description
+          created_at
+          last_used_at
+          location
+          type
+          cloudInitComplete
+          application
+        }
+      }`)
+      this.containers = containers
+    },
+    async getOperations() {
+      const { data : { operations } } = await this.fetch(`query operations { 
+        operations {
+          id
+          class
+          created_at
+          updated_at
+          status
+          status_code
+          may_cancel
+          err
+          metadata
+        }
+      }`)
+      this.operations = operations
+    },
+    async login({ username, password }) {
+      const { data: { login : { user, token} } } = await this.fetch(
+        `mutation login {
+          login (
+            username: "${username.value}"
+            password: "${password.value}"
+          ) { 
             user {
               id
               username
-            } 
+            }
             token
-          }`
-        }
-      })
-      this.auth.username = username
-      this.auth.token = token
+          }
+        }`,
+        true
+      )
+      this.setUsername(user.username)
+      this.setToken(token)
+      window.location.reload(true)
+    },
+    async logout() {
+      this.setUsername(null)
+      this.setToken(null)
+      window.location.reload(true)
     }
   },  
-  getters: {},
-})
+  getters: {
+    username() {
+      const cookie = useCookie('username')
+      return cookie.value
+    },
+    token() {
+      const cookie = useCookie('token')
+      return cookie.value
+    }
+  },
+})  

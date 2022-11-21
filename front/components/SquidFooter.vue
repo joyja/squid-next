@@ -25,13 +25,11 @@
           </svg>
         </a>
       </div>
-      <div>
-        <p class="copyright">&copy; 2023 JAR Automation, LLC All rights reserved.</p>
-      </div>
+      <p class="copyright">&copy; 2023 JAR Automation, LLC All rights reserved.</p>
     </footer>
   </template>
   
-  <style scoped>
+  <style lang="scss" scoped>
   /* md */
   @media (min-width: 768px) {
     .footer {
@@ -48,8 +46,6 @@
     }
   }
   .footer {
-    margin-left: auto;
-    margin-right: auto;
     padding-top: calc(2 * var(--spacing-unit));
     padding-bottom: calc(2 * var(--spacing-unit));
     padding-right: calc(4 * var(--spacing-unit));

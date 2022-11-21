@@ -12,10 +12,10 @@ description: macvlan interface directly on LAN
 devices:
   eth1:
     nictype: macvlan
-    parent: eno1
+    parent: eth1
     type: nic
   eth2:
     nictype: macvlan
-    parent: enp1s0
+    parent: eth2
     type: nic
 name: macvlan
