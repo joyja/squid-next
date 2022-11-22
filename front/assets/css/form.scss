@@ -23,7 +23,7 @@
 }
 .entry--input {
   display:block;
-  border-radius: 0.375rem;
+  border-radius: 0.375rem !important;
   border: solid 1px var(--gray-300); 
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }

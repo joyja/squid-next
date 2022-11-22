@@ -1,11 +1,12 @@
 <script setup>
+import { storeToRefs } from 'pinia';
 import { useSquidStore } from '~/store/squid'
 definePageMeta({
   middleware: 'auth'
 })
 const store = useSquidStore()
 await store.getProfiles()
-const { info, profiles } = store
+const { info, profiles, operations } = storeToRefs(store); 
 let interval
 onMounted(() => {
   interval = setInterval(() => {
@@ -151,6 +152,9 @@ const createContainer = async () => {
       <nuxt-img class="rounded" :src="containerType.imageSrc" loading="lazy" :placeholder="containerType.imageLazySrc"/>
     </div>
   </div>
+  <div class="operations">
+    <div v-for="operation in operations">{{ operation.metadata }}</div>
+  </div>
   <dialog id="createContainerDialog" class="modal modal--hide">
     <form class="form" @submit.prevent="createContainer">
       <div class="entry">
@@ -165,6 +169,10 @@ const createContainer = async () => {
 
 <style lang="scss">
 @import '~/assets/css/boxShadow.scss';
+.operations {
+  display: flex;
+  flex-direction: column;
+}
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

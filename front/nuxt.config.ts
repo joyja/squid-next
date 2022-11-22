@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   content: {
     watch: {
       ws: {
-        hostname: '10.77.178.237',
+        hostname: '10.251.214.196',
         port: 4001
       }
     }
